@@ -20,12 +20,23 @@ class Admin::AssetsController < Admin::ResourceController
   end
 
   def create
-    @asset = Asset.new(params[:asset])
-    if @asset.save
+    # this little part was put in by me, Ryan Shaw, to add html5 multi-file uploads.
+    if params[:asset] && params[:asset][:asset] && params[:asset][:asset].is_a?(Array) && !params[:asset][:asset].empty?
+      @assets = params[:asset][:asset].map do |uploaded_asset|
+        Asset.new(:asset => uploaded_asset[:asset])
+      end
+      @asset = @assets.first
+    else
+      @assets = [Asset.new(params[:asset])]
+    end
+    if @assets.map &:save!
       if params[:page]
         @page = Page.find(params[:page])
-        @asset.pages << @page
+        @assets.each do |asset|
+          asset.pages << @page
+        end
       end
+      @asset = @assets.first
 
       respond_to do |format|
         format.html {

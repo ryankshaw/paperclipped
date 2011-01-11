@@ -22,6 +22,21 @@
           = save_model_and_continue_editing_button(@asset)
           = t("or")
           = link_to t("cancel"), admin_assets_path
+          :javascript
+            //
+            document.observe("dom:loaded", function() {
+              var input = $('asset_asset');
+              // We use .setAttribute in this case because we only expect newer 
+              // browsers to succeed with it
+              input.setAttribute('multiple','multiple');
+              // check to see if the element is now marked as a multiple-uploader 
+              // (old, aka IE browsers will not succeed in this), and if it does, 
+              // then rename the input element by adding a [] to the end. If this is 
+              // not done, then the server will only see the first file which is uploaded.
+              if(input.multiple){
+                input.name= input.name + '[]';
+              }
+            });
 
   - main.edit_regenerate do
     &nbsp;
